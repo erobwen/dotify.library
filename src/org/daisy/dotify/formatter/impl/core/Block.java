@@ -29,9 +29,9 @@ public abstract class Block {
     private FormattingTypes.BreakBefore breakBefore;
     private FormattingTypes.Keep keep;
     private int keepWithNext;
+    private BlockAddress endingKeepWithPreviousSheetsScope;
     private int keepWithPreviousSheets;
-    private BlockAddress keepWithPreviousSheetsScope;
-    private List<BlockAddress> keepWithPreviousSheetsScopes;
+    private List<BlockAddress> enclosingKeepWithPreviousSheetsScopes;
     private int keepWithNextSheets;
     private Integer avoidVolumeBreakInsidePriority;
     private Integer avoidVolumeBreakAfterPriority;
@@ -52,9 +52,9 @@ public abstract class Block {
         this.breakBefore = FormattingTypes.BreakBefore.AUTO;
         this.keep = FormattingTypes.Keep.AUTO;
         this.keepWithNext = 0;
+        this.endingKeepWithPreviousSheetsScope = null;
         this.keepWithPreviousSheets = 0;
-        this.keepWithPreviousSheetsScope = null;
-        this.keepWithPreviousSheetsScopes = Collections.emptyList();
+        this.enclosingKeepWithPreviousSheetsScopes = Collections.emptyList();
         this.keepWithNextSheets = 0;
         this.avoidVolumeBreakInsidePriority = null;
         this.avoidVolumeBreakAfterPriority = null;
@@ -74,9 +74,9 @@ public abstract class Block {
         this.breakBefore = template.breakBefore;
         this.keep = template.keep;
         this.keepWithNext = template.keepWithNext;
+        this.endingKeepWithPreviousSheetsScope = template.endingKeepWithPreviousSheetsScope;
         this.keepWithPreviousSheets = template.keepWithPreviousSheets;
-        this.keepWithPreviousSheetsScope = template.keepWithPreviousSheetsScope;
-        this.keepWithPreviousSheetsScopes = template.keepWithPreviousSheetsScopes;
+        this.enclosingKeepWithPreviousSheetsScopes = template.enclosingKeepWithPreviousSheetsScopes;
         this.keepWithNextSheets = template.keepWithNextSheets;
         this.avoidVolumeBreakInsidePriority = template.avoidVolumeBreakInsidePriority;
         this.avoidVolumeBreakAfterPriority = template.avoidVolumeBreakAfterPriority;
@@ -217,16 +217,40 @@ public abstract class Block {
         return keepWithNext;
     }
 
+    /**
+     * Gets the scope of the OBFL block with <code>keep-with-previous-sheets</code> that ends in this
+     * block, if any.
+     *
+     * <p>Such an OBFL block defines a scope, identified by the address of the first {@link Block}
+     * created for it, and its keep only applies to sheets within that scope. At most one OBFL block
+     * ends in a block, because ending an OBFL block starts a new block for its parent.</p>
+     *
+     * @return the scope, or null if no OBFL block with keep-with-previous-sheets ends here
+     * @see #getKeepWithPreviousSheets()
+     */
+    public BlockAddress getEndingKeepWithPreviousSheetsScope() {
+        return endingKeepWithPreviousSheetsScope;
+    }
+
+    /**
+     * Gets the keep-with-previous-sheets value of the OBFL block that ends in this block.
+     *
+     * @return the number of sheets to keep, 0 if no such OBFL block ends here
+     * @see #getEndingKeepWithPreviousSheetsScope()
+     */
     public int getKeepWithPreviousSheets() {
         return keepWithPreviousSheets;
     }
 
-    public BlockAddress getKeepWithPreviousSheetsScope() {
-        return keepWithPreviousSheetsScope;
-    }
-
-    public List<BlockAddress> getKeepWithPreviousSheetsScopes() {
-        return keepWithPreviousSheetsScopes;
+    /**
+     * Gets the scopes of all OBFL blocks with <code>keep-with-previous-sheets</code> that this block
+     * is inside, its own OBFL block included. They are used to find the first and last sheet with
+     * content of each scope.
+     *
+     * @return the enclosing scopes, never null
+     */
+    public List<BlockAddress> getEnclosingKeepWithPreviousSheetsScopes() {
+        return enclosingKeepWithPreviousSheetsScopes;
     }
 
     public int getKeepWithNextSheets() {
@@ -253,13 +277,13 @@ public abstract class Block {
         this.keepWithNext = keepWithNext;
     }
 
-    void setKeepWithPreviousSheets(BlockAddress scope, int keepWithPreviousSheets) {
-        this.keepWithPreviousSheetsScope = scope;
+    void setKeepWithPreviousSheets(BlockAddress endingScope, int keepWithPreviousSheets) {
+        this.endingKeepWithPreviousSheetsScope = endingScope;
         this.keepWithPreviousSheets = keepWithPreviousSheets;
     }
 
-    void setKeepWithPreviousSheetsScopes(List<BlockAddress> scopes) {
-        this.keepWithPreviousSheetsScopes = scopes;
+    void setEnclosingKeepWithPreviousSheetsScopes(List<BlockAddress> scopes) {
+        this.enclosingKeepWithPreviousSheetsScopes = scopes;
     }
 
     void setKeepWithNextSheets(int keepWithNextSheets) {

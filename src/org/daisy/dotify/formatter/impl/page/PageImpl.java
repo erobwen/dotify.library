@@ -63,8 +63,8 @@ public class PageImpl implements Page {
 
     private boolean hasRows;
     private boolean isVolBreakAllowed;
-    private Map<BlockAddress, Integer> keepWithPreviousSheets;
-    private Set<BlockAddress> keepWithPreviousSheetsScopes;
+    private Map<BlockAddress, Integer> keepWithPreviousSheetsEndingHere;
+    private Set<BlockAddress> keepWithPreviousSheetsScopesOnPage;
     private VolumeKeepPriority volumeBreakAfterPriority;
     private final BrailleTranslator filter;
 
@@ -91,8 +91,8 @@ public class PageImpl implements Page {
         this.template = master.getTemplate(details.getPageNumber());
         this.flowHeight = master.getFlowHeight(template);
         this.isVolBreakAllowed = true;
-        this.keepWithPreviousSheets = Collections.emptyMap();
-        this.keepWithPreviousSheetsScopes = Collections.emptySet();
+        this.keepWithPreviousSheetsEndingHere = Collections.emptyMap();
+        this.keepWithPreviousSheetsScopesOnPage = Collections.emptySet();
         this.volumeBreakAfterPriority = VolumeKeepPriority.empty();
         if (master.duplex() && details.getPageId().getOrdinal() % 2 == 1) {
             this.finalRows = new BorderManager(master, fcontext, master.getOuterMargin(), master.getInnerMargin());
@@ -478,24 +478,24 @@ public class PageImpl implements Page {
         return flowHeight;
     }
 
-    void addKeepWithPreviousSheets(BlockAddress scope, int value) {
-        if (scope == null) {
+    void addKeepWithPreviousSheetsEndingHere(BlockAddress endingScope, int value) {
+        if (endingScope == null) {
             return;
         }
-        if (keepWithPreviousSheets.isEmpty()) {
-            keepWithPreviousSheets = new HashMap<>();
+        if (keepWithPreviousSheetsEndingHere.isEmpty()) {
+            keepWithPreviousSheetsEndingHere = new HashMap<>();
         }
-        keepWithPreviousSheets.put(scope, value);
+        keepWithPreviousSheetsEndingHere.put(endingScope, value);
     }
 
-    void addKeepWithPreviousSheetsScopes(List<BlockAddress> scopes) {
+    void addKeepWithPreviousSheetsScopesOnPage(List<BlockAddress> scopes) {
         if (scopes.isEmpty()) {
             return;
         }
-        if (keepWithPreviousSheetsScopes.isEmpty()) {
-            keepWithPreviousSheetsScopes = new HashSet<>();
+        if (keepWithPreviousSheetsScopesOnPage.isEmpty()) {
+            keepWithPreviousSheetsScopesOnPage = new HashSet<>();
         }
-        keepWithPreviousSheetsScopes.addAll(scopes);
+        keepWithPreviousSheetsScopesOnPage.addAll(scopes);
     }
 
     void setAllowsVolumeBreak(boolean value) {
@@ -506,12 +506,25 @@ public class PageImpl implements Page {
         return isVolBreakAllowed;
     }
 
-    public Map<BlockAddress, Integer> getKeepWithPreviousSheets() {
-        return keepWithPreviousSheets;
+    /**
+     * Gets the keep-with-previous-sheets values of the OBFL blocks that end on this page. Several
+     * OBFL blocks can end on the same page, hence a map.
+     *
+     * @return the number of sheets to keep, by scope, never null
+     * @see org.daisy.dotify.formatter.impl.core.Block#getEndingKeepWithPreviousSheetsScope()
+     */
+    public Map<BlockAddress, Integer> getKeepWithPreviousSheetsEndingHere() {
+        return keepWithPreviousSheetsEndingHere;
     }
 
-    public Set<BlockAddress> getKeepWithPreviousSheetsScopes() {
-        return keepWithPreviousSheetsScopes;
+    /**
+     * Gets the keep-with-previous-sheets scopes that have content on this page.
+     *
+     * @return the scopes, never null
+     * @see org.daisy.dotify.formatter.impl.core.Block#getEnclosingKeepWithPreviousSheetsScopes()
+     */
+    public Set<BlockAddress> getKeepWithPreviousSheetsScopesOnPage() {
+        return keepWithPreviousSheetsScopesOnPage;
     }
 
     PageTemplate getPageTemplate() {

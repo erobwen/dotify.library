@@ -868,8 +868,11 @@ public class PageSequenceBuilder2 {
         if (keepNextSheets > 0) {
             p.setAllowsVolumeBreak(false);
         }
-        p.addKeepWithPreviousSheets(rg.getKeepWithPreviousSheetsScope(), rg.getKeepWithPreviousSheets());
-        p.addKeepWithPreviousSheetsScopes(rg.getKeepWithPreviousSheetsScopes());
+        p.addKeepWithPreviousSheetsEndingHere(
+            rg.getEndingKeepWithPreviousSheetsScope(),
+            rg.getKeepWithPreviousSheets()
+        );
+        p.addKeepWithPreviousSheetsScopesOnPage(rg.getEnclosingKeepWithPreviousSheetsScopes());
     }
 
     private void reassignCollection() throws PaginatorException {

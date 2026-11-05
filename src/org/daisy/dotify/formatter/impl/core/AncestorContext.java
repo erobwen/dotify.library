@@ -7,6 +7,7 @@ class AncestorContext {
     private final BlockProperties blockProperties;
     private final Integer volumeKeepPriority;
     private int listIterator;
+    // the scope this OBFL block defines, if it has keep-with-previous-sheets, otherwise null
     private BlockAddress keepWithPreviousSheetsScope;
 
     AncestorContext(BlockProperties props, Integer volumeKeep) {

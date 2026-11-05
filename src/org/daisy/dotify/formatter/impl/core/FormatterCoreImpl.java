@@ -193,7 +193,7 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
         Block c = newBlock(blockId, rdp.build());
         if (p.getKeepWithPreviousSheets() > 0) {
             ac.setKeepWithPreviousSheetsScope(c.getBlockAddress());
-            c.setKeepWithPreviousSheetsScopes(getKeepWithPreviousSheetsScopes());
+            c.setEnclosingKeepWithPreviousSheetsScopes(getEnclosingKeepWithPreviousSheetsScopes());
         }
         c.setBreakBeforeType(p.getBreakBeforeType());
         c.setKeepType(p.getKeepType());
@@ -323,12 +323,12 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
         currentBlockAddress = new BlockAddress(groupNumber, currentBlockAddress.getBlockNumber() + 1);
         block.setBlockAddress(currentBlockAddress);
         block.setTreeInfo(blocksClosedSinceLastNewBlock, propsContext.size());
-        block.setKeepWithPreviousSheetsScopes(getKeepWithPreviousSheetsScopes());
+        block.setEnclosingKeepWithPreviousSheetsScopes(getEnclosingKeepWithPreviousSheetsScopes());
         blocksClosedSinceLastNewBlock = 0;
         return this.push(block);
     }
 
-    private List<BlockAddress> getKeepWithPreviousSheetsScopes() {
+    private List<BlockAddress> getEnclosingKeepWithPreviousSheetsScopes() {
         List<BlockAddress> scopes = null;
         for (AncestorContext ac : propsContext) {
             if (ac.getKeepWithPreviousSheetsScope() != null) {
@@ -583,7 +583,7 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
         );
         currentBlockAddress = new BlockAddress(groupNumber, currentBlockAddress.getBlockNumber() + 1);
         table.setBlockAddress(currentBlockAddress);
-        table.setKeepWithPreviousSheetsScopes(getKeepWithPreviousSheetsScopes());
+        table.setEnclosingKeepWithPreviousSheetsScopes(getEnclosingKeepWithPreviousSheetsScopes());
         add(table);
         //no need to create and configure a regular block (as is done in startBlock)
         //if there is a list item, we ignore it

@@ -159,7 +159,7 @@ class RowGroupProvider {
             if (bcm.hasInnerPreContentRows()) {
                 return setPropertiesThatDependOnHasNext(
                     new RowGroup.Builder(master.getRowSpacing(), makeInvisible(bcm.getInnerPreContentRows()))
-                        .keepWithPreviousSheetsScopes(g.getKeepWithPreviousSheetsScopes())
+                        .enclosingKeepWithPreviousSheetsScopes(g.getEnclosingKeepWithPreviousSheetsScopes())
                         .mergeable(false)
                         .lineProperties(lineProps)
                         .collapsible(false)
@@ -183,7 +183,7 @@ class RowGroupProvider {
                         .breakable(false),
                     bc.getRefs(),
                     g
-                ).keepWithPreviousSheets(g.getKeepWithPreviousSheetsScope(), g.getKeepWithPreviousSheets());
+                ).keepWithPreviousSheets(g.getEndingKeepWithPreviousSheetsScope(), g.getKeepWithPreviousSheets());
                 return setPropertiesThatDependOnHasNext(rgb, hasNext(), g).build();
             }
         }
@@ -199,7 +199,7 @@ class RowGroupProvider {
                     owc.storeRowCount(bc.getRefs());
                 }
                 RowGroup.Builder rgb = new RowGroup.Builder(master.getRowSpacing()).add(r)
-                        .keepWithPreviousSheetsScopes(g.getKeepWithPreviousSheetsScopes())
+                        .enclosingKeepWithPreviousSheetsScopes(g.getEnclosingKeepWithPreviousSheetsScopes())
                         .mergeable(bcm.supportsVariableWidth())
                         .lineProperties(lineProps)
                         .collapsible(false)
@@ -216,7 +216,7 @@ class RowGroupProvider {
                 }
                 if (!hasNext && !bcm.hasPostContentRows()) {
                     // this is the last row of the block
-                    rgb.keepWithPreviousSheets(g.getKeepWithPreviousSheetsScope(), g.getKeepWithPreviousSheets());
+                    rgb.keepWithPreviousSheets(g.getEndingKeepWithPreviousSheetsScope(), g.getKeepWithPreviousSheets());
                 }
                 firstRow = false;
                 keepWithNext = keepWithNext - 1;
@@ -230,8 +230,8 @@ class RowGroupProvider {
             if (bcm.hasPostContentRows()) {
                 return setPropertiesThatDependOnHasNext(
                     new RowGroup.Builder(master.getRowSpacing(), makeInvisible(bcm.getPostContentRows()))
-                        .keepWithPreviousSheetsScopes(g.getKeepWithPreviousSheetsScopes())
-                        .keepWithPreviousSheets(g.getKeepWithPreviousSheetsScope(), g.getKeepWithPreviousSheets())
+                        .enclosingKeepWithPreviousSheetsScopes(g.getEnclosingKeepWithPreviousSheetsScopes())
+                        .keepWithPreviousSheets(g.getEndingKeepWithPreviousSheetsScope(), g.getKeepWithPreviousSheets())
                         .mergeable(false)
                         .lineProperties(lineProps)
                         .collapsible(false)
