@@ -66,9 +66,9 @@ public class SheetDataSource implements SplitPointDataSource<Sheet, SheetDataSou
     private SectionProperties sectionProperties;
     private int sheetIndex; // sheets created from current sequence or being created
     private Deque<SheetIdentity> previousSheets; // all sheets created from the current sequence
-    // first and last sheet (sheetIndex) with content rows of each keep-with-previous-sheets scope
-    private Map<BlockAddress, Integer> keepScopeFirstSheet;
-    private Map<BlockAddress, Integer> keepScopeLastSheet;
+    // first and last sheet (sheetIndex) where each keep-with-previous-sheets scope has rows
+    private Map<BlockAddress, Integer> firstSheetOfKeepScope;
+    private Map<BlockAddress, Integer> lastSheetOfKeepScope;
     private int pageIndex; // keeps track of whether we are on a right- or left-hand page
     private String counter;
     private int initialPageOffset;
@@ -101,8 +101,8 @@ public class SheetDataSource implements SplitPointDataSource<Sheet, SheetDataSou
         this.sectionProperties = null;
         this.sheetIndex = 0;
         this.previousSheets = new LinkedList<>();
-        this.keepScopeFirstSheet = new HashMap<>();
-        this.keepScopeLastSheet = new HashMap<>();
+        this.firstSheetOfKeepScope = new HashMap<>();
+        this.lastSheetOfKeepScope = new HashMap<>();
         this.pageIndex = 0;
         this.counter = null;
         this.initialPageOffset = 0;
@@ -141,8 +141,8 @@ public class SheetDataSource implements SplitPointDataSource<Sheet, SheetDataSou
         this.sheetIndex = template.sheetIndex;
         this.pageIndex = template.pageIndex;
         this.previousSheets = new LinkedList<>(template.previousSheets);
-        this.keepScopeFirstSheet = new HashMap<>(template.keepScopeFirstSheet);
-        this.keepScopeLastSheet = new HashMap<>(template.keepScopeLastSheet);
+        this.firstSheetOfKeepScope = new HashMap<>(template.firstSheetOfKeepScope);
+        this.lastSheetOfKeepScope = new HashMap<>(template.lastSheetOfKeepScope);
         if (template.sheetBuffer.size() > offset) {
             this.sheetBuffer = new ArrayList<>(template.sheetBuffer.subList(offset, template.sheetBuffer.size()));
         } else {
@@ -320,8 +320,8 @@ public class SheetDataSource implements SplitPointDataSource<Sheet, SheetDataSou
                 if (!previousSheets.isEmpty()) {
                     previousSheets = new LinkedList<>();
                 }
-                keepScopeFirstSheet = new HashMap<>();
-                keepScopeLastSheet = new HashMap<>();
+                firstSheetOfKeepScope = new HashMap<>();
+                lastSheetOfKeepScope = new HashMap<>();
             }
             int currentSize = sheetBuffer.size();
             while (psb.hasNext() && currentSize == sheetBuffer.size()) {
@@ -442,7 +442,7 @@ public class SheetDataSource implements SplitPointDataSource<Sheet, SheetDataSou
                     }
                     s.breakable(br);
                 }
-                keepWithPreviousSheets(p);
+                applyKeepWithPreviousSheets(p);
                 volBreakAllowed &= p.allowsVolumeBreak();
                 if (!sectionProperties.duplex() || pageIndex % 2 == 1 || volumeEnded) {
                     rcontext.getRefs().keepBreakable(si, volBreakAllowed);
@@ -480,51 +480,53 @@ public class SheetDataSource implements SplitPointDataSource<Sheet, SheetDataSou
 
     /**
      * Apply keep-with-previous-sheets for the OBFL blocks that end on page <code>p</code>, which is
-     * on the sheet currently being built. The last sheet with content of such a block is kept together
-     * with the <code>n</code> sheets before it, but never with sheets before the block's first sheet
-     * with content.
+     * on the sheet currently being built. The last sheet of such a block is kept together with as
+     * many sheets before it as the attribute says, but never with sheets before the block's first
+     * sheet.
      *
      * @param p The page that was just added to the sheet currently being built.
      */
-    private void keepWithPreviousSheets(PageImpl p) {
+    private void applyKeepWithPreviousSheets(PageImpl p) {
+        // Record the first and last sheet of each scope that has rows on this page
         for (BlockAddress scope : p.getKeepWithPreviousSheetsScopesOnPage()) {
-            keepScopeFirstSheet.putIfAbsent(scope, sheetIndex);
-            keepScopeLastSheet.put(scope, sheetIndex);
+            firstSheetOfKeepScope.putIfAbsent(scope, sheetIndex);
+            lastSheetOfKeepScope.put(scope, sheetIndex);
         }
-        for (Map.Entry<BlockAddress, Integer> keep : p.getKeepWithPreviousSheetsEndingHere().entrySet()) {
-            Integer first = keepScopeFirstSheet.get(keep.getKey());
-            if (first == null) {
+        // Apply the keeps of the OBFL blocks that end on this page, limited to their own sheets
+        for (Map.Entry<BlockAddress, Integer> ending : p.getKeepWithPreviousSheetsEndingHere().entrySet()) {
+            Integer firstSheet = firstSheetOfKeepScope.get(ending.getKey());
+            if (firstSheet == null) {
                 continue;
             }
-            int last = keepScopeLastSheet.get(keep.getKey());
-            int n = Math.min(keep.getValue(), last - first);
-            keepWithPreviousSheets(previousSheets, sheetIndex - last, n, rcontext);
+            int lastSheet = lastSheetOfKeepScope.get(ending.getKey());
+            int sheetsToKeep = Math.min(ending.getValue(), lastSheet - firstSheet);
+            keepSheetWithPreviousSheets(previousSheets, sheetIndex - lastSheet, sheetsToKeep, rcontext);
         }
     }
 
     /**
-     * Keep a sheet together with the <code>n</code> sheets before it.
+     * Keep a sheet together with the <code>sheetsToKeep</code> sheets before it.
      *
      * @param previousSheets All the sheets previously created from the current block sequence,
      *                       starting with the most recent one (the one before the sheet we are
      *                       currently building).
-     * @param skip           How many sheets before the one currently being built the sheet to
-     *                       keep is. 0 means the sheet currently being built.
-     * @param n              The number of sheets to keep together, excluding the sheet to keep.
+     * @param sheetsBack     How far back from the sheet currently being built the sheet to keep
+     *                       is. 0 means the sheet currently being built.
+     * @param sheetsToKeep   The number of sheets before the sheet to keep that are kept with it.
      * @param rcontext       The current {@link DefaultContext}.
      */
-    private static void keepWithPreviousSheets(
+    private static void keepSheetWithPreviousSheets(
         Iterable<SheetIdentity> previousSheets,
-        int skip,
-        int n,
+        int sheetsBack,
+        int sheetsToKeep,
         DefaultContext rcontext
     ) {
         for (SheetIdentity s : previousSheets) {
-            if (skip > 0) {
-                skip--;
-            } else if (n > 0) {
+            if (sheetsBack > 0) {
+                sheetsBack--;
+            } else if (sheetsToKeep > 0) {
                 rcontext.getRefs().keepBreakable(s, false);
-                n--;
+                sheetsToKeep--;
             } else {
                 break;
             }

@@ -192,6 +192,8 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
         propsContext.push(ac);
         Block c = newBlock(blockId, rdp.build());
         if (p.getKeepWithPreviousSheets() > 0) {
+            // the scope is the address of the first block, so newBlock() computed the enclosing
+            // scopes before this block's own scope existed: compute them again
             ac.setKeepWithPreviousSheetsScope(c.getBlockAddress());
             c.setEnclosingKeepWithPreviousSheetsScopes(getEnclosingKeepWithPreviousSheetsScopes());
         }

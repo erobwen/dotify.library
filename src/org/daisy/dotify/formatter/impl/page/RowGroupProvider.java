@@ -174,6 +174,10 @@ class RowGroupProvider {
             phase++;
             //TODO: Does this interfere with collapsing margins?
             if (shouldAddGroupForEmptyContent()) {
+                // This group has no content, so it gets no enclosing keep-with-previous-sheets scopes:
+                // a keep ending here is measured from the last sheet where the scope has rows. It isn't
+                // breakable, so it always lands on the same page as any post content rows that also
+                // carry the keep.
                 RowGroup.Builder rgb = setPropertiesForFirstContentRowGroup(
                     new RowGroup.Builder(master.getRowSpacing(), new ArrayList<RowImpl>())
                         .mergeable(true)
