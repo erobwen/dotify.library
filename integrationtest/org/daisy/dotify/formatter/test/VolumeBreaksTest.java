@@ -214,6 +214,18 @@ public class VolumeBreaksTest extends AbstractFormatterEngineTest {
     }
 
     @Test
+    public void testVolumeKeepPreviousNestedOuter() throws
+            LayoutEngineException,
+            IOException,
+            PagedMediaWriterConfigurationException {
+        testPEF(
+            "resource-files/volume-break/volume-breaks-keep-previous-nested-outer-input.obfl",
+            "resource-files/volume-break/volume-breaks-keep-previous-nested-outer-expected.pef",
+            false
+        );
+    }
+
+    @Test
     public void testVolumeKeepPreviousDuplex() throws
             LayoutEngineException,
             IOException,

@@ -1,0 +1,31 @@
+<obfl xmlns="http://www.daisy.org/ns/2011/obfl" version="2011-1" xml:lang="en">
+	<meta xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<dc:title>Volume keep with previous, nested blocks ending together, outer keep reaching further test</dc:title>
+		<dc:description>One short block is one sheet. A block with keep-with-previous-sheets="2" contains only a
+		block with keep-with-previous-sheets="1", which fills sheets 3-5, so both blocks end on sheet 5. Each keep
+		must apply on its own: the outer keep keeps sheets 3-5 together. Without any keep, the volumes would be
+		4 and 2 sheets. With only the inner keep, they would be 3 and 3 sheets. With both, they are 2 and 4 sheets.</dc:description>
+	</meta>
+	<layout-master name="body" page-width="10" page-height="6" duplex="false">
+		<default-template>
+			<header/>
+			<footer/>
+		</default-template>
+	</layout-master>
+	<volume-template sheets-in-volume-max="4">
+		<pre-content/>
+		<post-content/>
+	</volume-template>
+	<sequence master="body">
+		<block>⠿⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠿</block>
+		<block>⠿⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠿</block>
+		<block keep-with-previous-sheets="2">
+			<block keep-with-previous-sheets="1">
+				<block>⠿⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠿</block>
+				<block>⠿⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠿</block>
+				<block>⠿⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠿</block>
+			</block>
+		</block>
+		<block>⠿⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠤ ⠤⠿</block>
+	</sequence>
+</obfl>
