@@ -331,16 +331,14 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
     }
 
     private List<BlockAddress> getEnclosingKeepWithPreviousSheetsScopes() {
-        List<BlockAddress> scopes = null;
+        List<BlockAddress> scopes = new ArrayList<>();
         for (AncestorContext ac : propsContext) {
+            // only ancestors with keep-with-previous-sheets define a scope
             if (ac.getKeepWithPreviousSheetsScope() != null) {
-                if (scopes == null) {
-                    scopes = new ArrayList<>();
-                }
                 scopes.add(ac.getKeepWithPreviousSheetsScope());
             }
         }
-        return scopes == null ? Collections.emptyList() : Collections.unmodifiableList(scopes);
+        return Collections.unmodifiableList(scopes);
     }
 
     public Block getCurrentBlock() {

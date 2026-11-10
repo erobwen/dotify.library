@@ -27,7 +27,6 @@ import org.daisy.dotify.formatter.impl.search.VolumeKeepPriority;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -91,8 +90,8 @@ public class PageImpl implements Page {
         this.template = master.getTemplate(details.getPageNumber());
         this.flowHeight = master.getFlowHeight(template);
         this.isVolBreakAllowed = true;
-        this.keepWithPreviousSheetsEndingHere = Collections.emptyMap();
-        this.keepWithPreviousSheetsScopesOnPage = Collections.emptySet();
+        this.keepWithPreviousSheetsEndingHere = new HashMap<>();
+        this.keepWithPreviousSheetsScopesOnPage = new HashSet<>();
         this.volumeBreakAfterPriority = VolumeKeepPriority.empty();
         if (master.duplex() && details.getPageId().getOrdinal() % 2 == 1) {
             this.finalRows = new BorderManager(master, fcontext, master.getOuterMargin(), master.getInnerMargin());
@@ -482,19 +481,10 @@ public class PageImpl implements Page {
         if (endingScope == null) {
             return;
         }
-        if (keepWithPreviousSheetsEndingHere.isEmpty()) {
-            keepWithPreviousSheetsEndingHere = new HashMap<>();
-        }
         keepWithPreviousSheetsEndingHere.put(endingScope, value);
     }
 
     void addKeepWithPreviousSheetsScopesOnPage(List<BlockAddress> scopes) {
-        if (scopes.isEmpty()) {
-            return;
-        }
-        if (keepWithPreviousSheetsScopesOnPage.isEmpty()) {
-            keepWithPreviousSheetsScopesOnPage = new HashSet<>();
-        }
         keepWithPreviousSheetsScopesOnPage.addAll(scopes);
     }
 
