@@ -185,7 +185,13 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
                 default:
                     listLabel = "";
             }
-            listItem = new ListItem(listLabel, propsContext.peek().getBlockProperties().getListType());
+            // The label goes at the list's own column: the block indent accumulated above the list, which excludes
+            // the list's own block-indent (that one indents the items, i.e. reserves the room for the label).
+            listItem = new ListItem(
+                listLabel,
+                propsContext.peek().getBlockProperties().getListType(),
+                blockIndentParent.peek()
+            );
         }
         propsContext.push(ac);
         Block c = newBlock(blockId, rdp.build());
@@ -356,7 +362,7 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
         if (listItem != null) {
             //append to this block
             RowDataProperties.Builder builder = new RowDataProperties.Builder(bl.getRowDataProperties());
-            builder.listProperties(new ListItem(listItem.getLabel(), listItem.getType()));
+            builder.listProperties(listItem);
             bl.setRowDataProperties(builder.build());
             //list item has been used now, discard
             listItem = null;

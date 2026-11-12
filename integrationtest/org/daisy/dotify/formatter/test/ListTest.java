@@ -60,4 +60,28 @@ public class ListTest extends AbstractFormatterEngineTest {
         );
     }
 
+    @Test
+    public void testNestedListIndentOnItems() throws
+            LayoutEngineException,
+            IOException,
+            PagedMediaWriterConfigurationException {
+        testPEF(
+            "resource-files/list/list-nested-indent-on-items-input.obfl",
+            "resource-files/list/list-nested-indent-on-items-expected.pef",
+            false
+        );
+    }
+
+    @Test
+    public void testNestedListIndentOnLists() throws
+            LayoutEngineException,
+            IOException,
+            PagedMediaWriterConfigurationException {
+        testPEF(
+            "resource-files/list/list-nested-indent-on-lists-input.obfl",
+            "resource-files/list/list-nested-indent-on-lists-expected.pef",
+            false
+        );
+    }
+
 }
