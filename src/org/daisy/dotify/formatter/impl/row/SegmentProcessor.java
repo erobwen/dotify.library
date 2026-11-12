@@ -1127,7 +1127,6 @@ class SegmentProcessor {
                     return startNewRow(
                         btr,
                         "",
-                        0,
                         processorContext.getRowDataProps().getBlockIndent()
                             + processorContext.getRowDataProps().getTextIndent(),
                         processorContext.getRowDataProps().getRightTextIndent(),
@@ -1166,7 +1165,6 @@ class SegmentProcessor {
                                 btr,
                                 listLabel,
                                 processorContext.getRowDataProps().getBlockIndentParent(),
-                                processorContext.getRowDataProps().getBlockIndentParent(),
                                 processorContext.getRowDataProps().getRightTextIndent(),
                                 lineProps
                             );
@@ -1174,7 +1172,6 @@ class SegmentProcessor {
                             return startNewRow(
                                 btr,
                                 listLabel,
-                                item.getLabelIndent(),
                                 processorContext.getRowDataProps().getBlockIndent()
                                     + processorContext.getRowDataProps().getFirstLineIndent(),
                                 processorContext.getRowDataProps().getRightTextIndent(),
@@ -1188,7 +1185,6 @@ class SegmentProcessor {
                     return startNewRow(
                         btr,
                         "",
-                        0,
                         processorContext.getRowDataProps().getBlockIndent()
                             + processorContext.getRowDataProps().getFirstLineIndent(),
                         processorContext.getRowDataProps().getRightTextIndent(),
@@ -1212,7 +1208,6 @@ class SegmentProcessor {
         private Optional<RowImpl> startNewRow(
             BrailleTranslatorResult btr,
             String listLabel,
-            int labelIndent,
             int leftIndent,
             int rightIndentIfNotLastRow,
             LineProperties lineProps
@@ -1226,7 +1221,7 @@ class SegmentProcessor {
                           processorContext.getMargins().getRightMargin());
             return continueRow(
                 new RowInfo(
-                    getLeftIndentWithLabel(listLabel, labelIndent, leftIndent),
+                    getLeftIndentWithLabel(listLabel, leftIndent),
                     processorContext.getAvailable() - lineProps.getReservedWidth()
                 ),
                 btr,
@@ -1235,20 +1230,14 @@ class SegmentProcessor {
             );
         }
 
-        /*
-         * The label starts at labelIndent (the accumulated block-indent of the list, i.e. the column of the
-         * list's own content) and the text at indent, or right after the label if the label is wider.
-         */
-        private String getLeftIndentWithLabel(String listLabel, int labelIndent, int indent) {
-            int gap = Math.max(
+        private String getLeftIndentWithLabel(String listLabel, int indent) {
+            indent = Math.max(
                 // There is one known cause for this calculation to become < 0. That is when an ordered list is so long
                 // that the number takes up more space than the indent reserved for it.
                 // In that case it is probably best to push the content instead of failing altogether.
-                indent - labelIndent - StringTools.length(listLabel),
+                indent - StringTools.length(listLabel),
                 0);
-            return StringTools.fill(processorContext.getSpaceCharacter(), labelIndent)
-                + listLabel
-                + StringTools.fill(processorContext.getSpaceCharacter(), gap);
+            return listLabel + StringTools.fill(processorContext.getSpaceCharacter(), indent);
         }
 
         /*

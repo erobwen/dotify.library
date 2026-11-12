@@ -185,13 +185,7 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
                 default:
                     listLabel = "";
             }
-            // The label goes at the list's own column: the block indent accumulated above the list, which excludes
-            // the list's own block-indent (that one indents the items, i.e. reserves the room for the label).
-            listItem = new ListItem(
-                listLabel,
-                propsContext.peek().getBlockProperties().getListType(),
-                blockIndentParent.peek()
-            );
+            listItem = new ListItem(listLabel, propsContext.peek().getBlockProperties().getListType());
         }
         propsContext.push(ac);
         Block c = newBlock(blockId, rdp.build());
@@ -288,6 +282,8 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
             Keep keep = p.getKeepType();
             int next = p.getKeepWithNext();
             subtractFromBlockIndent(p.getBlockIndent());
+            // Text that follows a child block continues at the children's column, so the parent's own
+            // block-indent applies to it as well (as if it were in an anonymous child block).
             RowDataProperties.Builder rdp = new RowDataProperties.Builder().
                     textIndent(p.getTextBlockProperties().getTextIndent()).
                     firstLineIndent(p.getTextBlockProperties().getFirstLineIndent()).
@@ -296,7 +292,7 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
                     rowSpacing(p.getTextBlockProperties().getRowSpacing()).
                     orphans(p.getOrphans()).
                     widows(p.getWidows()).
-                    blockIndent(blockIndent).
+                    blockIndent(blockIndent + p.getBlockIndent()).
                     blockIndentParent(blockIndentParent.peek()).
                     margins(new BlockMargin(
                             new Margin(Type.LEFT, leftMarginComps),
@@ -362,7 +358,7 @@ public class FormatterCoreImpl extends Stack<Block> implements FormatterCore, Bl
         if (listItem != null) {
             //append to this block
             RowDataProperties.Builder builder = new RowDataProperties.Builder(bl.getRowDataProperties());
-            builder.listProperties(listItem);
+            builder.listProperties(new ListItem(listItem.getLabel(), listItem.getType()));
             bl.setRowDataProperties(builder.build());
             //list item has been used now, discard
             listItem = null;

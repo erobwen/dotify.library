@@ -1,0 +1,24 @@
+<obfl xmlns="http://www.daisy.org/ns/2011/obfl" version="2011-1" xml:lang="en">
+	<meta xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<dc:title>Loose text test</dc:title>
+		<dc:description>Tests text that follows a child block inside a block with block-indent: it continues at the children's column, in a list item (also after a nested list) and in a plain block. Text before the first child block is the block's own first line and is not indented.</dc:description>
+	</meta>
+	<layout-master name="body" page-width="20" page-height="14" duplex="false">
+		<default-template>
+			<header/>
+			<footer/>
+		</default-template>
+	</layout-master>
+	<sequence master="body">
+		<block list-type="ol" margin-left="2">
+			<block block-indent="3"><block>⠤⠤⠤</block> ⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤</block>
+			<block block-indent="3"><block>⠤⠤⠤</block>
+				<block list-type="ol" margin-left="3">
+					<block><block>⠤⠤⠤</block> ⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤</block>
+				</block>
+				⠤⠤⠤ ⠤⠤⠤
+			</block>
+		</block>
+		<block block-indent="3" text-indent="1">⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤<block>⠤⠤⠤</block>⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤ ⠤⠤⠤</block>
+	</sequence>
+</obfl>
